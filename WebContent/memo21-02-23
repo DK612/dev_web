@@ -17,7 +17,7 @@ Memo 21-02-03
 EasyUI
 
 java layout 참고 https://m.blog.naver.com/PostView.nhn?blogId=bestheroz&logNo=103825646&proxyReferer=https:%2F%2Fwww.google.com%2F
-
+java table model 참고 https://m.blog.naver.com/PostView.nhn?blogId=highkrs&logNo=220587752871&proxyReferer=https:%2F%2Fwww.google.com%2F
 인스턴스화를 하면 생성자 호출이 일어난다.
 new A();//주소번지 재사용이 불가능하므로 좋지않다. 그래서
 A a = new A();로 써서 객체 a에 할당된 속성과 메소드에 접근할수있게된다.
