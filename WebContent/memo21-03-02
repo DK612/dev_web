@@ -1,0 +1,167 @@
+21-03-02 SQL/PL 학습내용
+심화 학습
+부서번호를 입력 받아서 그 부서에 근무하는 모든 사원에 대해서 같은 기준으로
+급여 인상된 부분을 반영하여 테이블을 업데이트 하는 프로시저를 작성하시오.
+
+사용자 정의 커서를 사용합니다.
+
+CURSOR 커서 이름 IS
+SELECT empno, ename, ...
+  FROM 집합이름
+ WHERE 컬럼명=부서번호;
+
+커서를 사용할 때는 반드시 커서를 open하고 사용함.
+open emp_cur;
+다 사용한 후에는 커서를 닫아야 함.
+close emp_cur;
+
+그리고 반복문은 
+
+loop
+
+ exit when emp_cur%NOTFOUND;
+end loop;
+select * from emp
+
+한 번에 한 사원만 업데이트 할 수 있습니다.
+
+input
+
+사원번호를 입력받는다.
+
+p_empno IN number --첫번째 파라미터 임.
+
+msg OUT varchar2 -- 리턴값을 담기
+
+
+두번째 단계
+
+변수 선언 - 4개  select ... into... 일반  DML에서는 사용불가
+1)평균을 담을 변수
+2)사원이름과 사원의 급여담을 변수 선언
+3)인상율을 담기
+
+3단계
+비교연산자
+
+IF 조건식(평균<너급여?) THEN
+  1.1
+ELSE
+  1.2
+END IF;
+
+UPDATE emp
+   SET sal = sal*1.1
+ WHERE empno = p_empno;
+ 
+ 
+commit;--물리적인 테이블에 반영함.
+
+msg 7566사원은 1.1인상으로 5000이 되었습니다.
+김승수님이 모두에게:  10:56 AM
+CREATE OR REPLACE PROCEDURE proc_emp_update1(p_empno IN number)
+IS
+ v_avg_sal number;
+ v_ename varchar2(30);
+ v_sal number(7,2);
+BEGIN
+ SELECT ename, sal INTO v_ename, v_sal
+  FROM emp
+ WHERE empno = p_empno;
+END;
+CREATE OR REPLACE PROCEDURE proc_emp_update1(p_empno IN number)
+IS
+ v_avg_sal number;
+ v_ename varchar2(30);
+ v_sal number(7,2);
+BEGIN
+ SELECT ename, sal INTO v_ename, v_sal
+  FROM emp
+ WHERE empno = p_empno;
+END;
+김승수님이 모두에게:  11:05 AM
+CREATE OR REPLACE PROCEDURE proc_emp_update1(p_empno IN number
+                                          ,msg OUT varchar2)
+IS
+ v_avg_sal number;
+ v_ename varchar2(30);
+ v_sal number(7,2);
+ v_rate number(3,1);--99.9
+BEGIN
+ SELECT ename, sal INTO v_ename, v_sal
+  FROM emp
+ WHERE empno = p_empno;
+ msg:= v_ename||'사원의 '||v_sal||'급여가 '||v_rate||' 인상으로'||v_sal*v_rate||'으로 인상되었다';
+END;
+김승수님이 모두에게:  11:19 AM
+SELECT distinct(deptno) FROM emp
+
+오라클에는 옵티마이저 라는 일꾼이 있어서 일을 처리한다.
+
+SELECT /*+index_desc(emp pk_emp)*/ empno FROM emp
+
+SELECT empno,ename FROM emp 
+
+1단계 - 문법적으로 합법인가? - parsing(html, xml)
+2단계 - 실행계획을 세운다 excute plan
+3단계 - 실행계획을 옵티마이저에게 넘긴다.
+4단계 - open...cursor..fetch..close
+
+1-1이다.
+
+프로그래밍을 한다는 것은
+
+input - operation - output
+김승수님이 모두에게:  11:45 AM
+CREATE OR REPLACE PROCEDURE proc_emp_update1(p_empno IN number
+                                          ,msg OUT varchar2)
+IS
+ v_avg_sal number;
+ v_ename varchar2(30);
+ v_sal number(7,2);
+ v_rate number(3,1);--99.9
+BEGIN
+ SELECT ename, sal INTO v_ename, v_sal
+  FROM emp
+ WHERE empno = p_empno;
+ SELECT avg(sal) INTO v_avg_sal FROM emp
+  WHERE deptno = (SELECT deptno FROM emp WHERE empno=p_empno);   
+ msg:= v_ename||'사원의 '||v_sal||'급여가 '||v_rate||' 인상으로'||v_sal*v_rate||'으로 인상되었다';
+END;
+CREATE OR REPLACE PROCEDURE proc_emp_update1(p_empno IN number
+                                          ,msg OUT varchar2)
+IS
+ v_avg_sal number;
+ v_ename varchar2(30);
+ v_sal number(7,2);
+ v_rate number(3,1);--99.9
+BEGIN
+ SELECT ename, sal INTO v_ename, v_sal
+  FROM emp
+ WHERE empno = p_empno;
+ SELECT avg(sal) INTO v_avg_sal FROM emp
+  WHERE deptno = (SELECT deptno FROM emp WHERE empno=p_empno);   
+ IF v_sal > v_avg_sal THEN
+    v_rate := 1.1;
+ ELSIF v_sal <= v_avg_sal THEN
+    v_rate := 1.2;   
+ END IF; 
+ msg:= v_ename||'사원의 '||v_sal||'급여가 '||v_rate||' 인상으로'||v_sal*v_rate||'으로 인상되었다';
+ EXCEPTION
+   WHEN NO_DATA_FOUND THEN
+    NULL;
+END;
+김승수님이 모두에게:  11:59 AM
+CREATE OR REPLACE PROCEDURE proc_loop(u_num IN number,  msg OUT varchar)
+IS
+ cnt number(5);
+ hap number(5);
+BEGIN
+ cnt := 0;
+ LOOP
+   cnt := cnt+1;
+   hap := hap + cnt;
+   EXIT WHEN cnt=11;
+ END LOOP;   
+ msg :='합은'||hap||'입니다.';
+END;
